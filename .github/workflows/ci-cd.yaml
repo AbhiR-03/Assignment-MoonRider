@@ -48,7 +48,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment.yaml > k8s/deployment.yaml
+          sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment.yaml > k8s/deployment.generated.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/ingress.yaml
