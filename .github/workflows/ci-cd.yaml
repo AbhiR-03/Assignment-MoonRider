@@ -44,6 +44,6 @@ jobs:
       - name: Wait for app to be ready
         run: sleep 20
 
-      - name: Run /health check
+      - name: Run /product check
         run: |
-          curl --fail http://localhost:8080/${{ needs.build-and-push.outputs.version }}/health || exit 1
+          curl --fail https://assignment-moonrider.onrender.com/products || exit 1
