@@ -38,45 +38,7 @@ jobs:
       - name: Push image to Docker Hub
         run: docker push $IMAGE_NAME:${{ steps.get_version.outputs.version }}
 
-  deploy-to-k8s:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    env:
-      VERSION: ${{ needs.build-and-push.outputs.version }}
-    steps:
-      - name: Print passed VERSION
-        run: echo "VERSION is: $VERSION "
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Show Git ref
-        run: |
-          echo "GITHUB_REF: $GITHUB_REF"
-          git log -1 --oneline
-
-      - name: Set up kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
-
-      - name: List Repo contents
-        run: ls -R
-
-      - name: Deploy to Kubernetes
-        run: |
-          echo "Printing directory tree:"
-          ls -la
-          echo "Checking contents of k8s directory:"
-          ls -la k8s || echo "⚠️ k8s directory not found"
-          sed "s|IMAGE_TAG|$VERSION|g" k8s/deployment-template.yaml > k8s/deployment.yaml
-          echo "🧾 Contents of rendered deployment.yaml:"
-          cat k8s/deployment.yaml
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
-
   integration-tests:
-    needs: deploy-to-k8s
     runs-on: ubuntu-latest
     steps:
       - name: Wait for app to be ready
