@@ -30,6 +30,7 @@ jobs:
           fi
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$VERSION .
@@ -40,6 +41,8 @@ jobs:
   deploy-to-k8s:
     needs: build-and-push
     runs-on: ubuntu-latest
+    env: 
+      VERSION: ${{needs.build-and-push.outputs.version }}
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
