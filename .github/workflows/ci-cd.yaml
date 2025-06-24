@@ -13,6 +13,8 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,43 +22,42 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: set docker image version
+      - name: Set Docker image version
         id: get_version
-        run:  |
+        run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             VERSION="${GITHUB_REF#refs/tags/}"
           else
             VERSION="${GITHUB_REF#refs/heads/}"
           fi
           echo "VERSION=$VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-    
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Build Docker image
-        run: docker build -t $IMAGE_NAME:$VERSION .
+        run: docker build -t $IMAGE_NAME:${{ steps.get_version.outputs.version }} .
 
       - name: Push image to Docker Hub
-        run: docker push $IMAGE_NAME:$VERSION
+        run: docker push $IMAGE_NAME:${{ steps.get_version.outputs.version }}
 
   deploy-to-k8s:
     needs: build-and-push
     runs-on: ubuntu-latest
-    env: 
-      VERSION: ${{needs.build-and-push.outputs.version }}
+    env:
+      VERSION: ${{ needs.build-and-push.outputs.version }}
     steps:
-      - name: checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Show Git ref
         run: |
           echo "GITHUB_REF: $GITHUB_REF"
           git log -1 --oneline
-        
+
       - name: Set up kubeconfig
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > $HOME/.kube/config
-          
+
       - name: List Repo contents
         run: ls -R
 
@@ -66,17 +67,12 @@ jobs:
           ls -la
           echo "Checking contents of k8s directory:"
           ls -la k8s || echo "⚠️ k8s directory not found"
-          # REMOVE or move the following line if k8s directory should exist from repo:
-          # mkdir -p k8s
-          sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment-template.yaml > k8s/deployment.yaml
-          
-      - name: Show generated deployment.yaml
-        run: |
+          sed "s|IMAGE_TAG|$VERSION|g" k8s/deployment-template.yaml > k8s/deployment.yaml
           echo "🧾 Contents of rendered deployment.yaml:"
           cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml  
+          kubectl apply -f k8s/ingress.yaml
 
   integration-tests:
     needs: deploy-to-k8s
@@ -87,5 +83,4 @@ jobs:
 
       - name: Run /health check
         run: |
-          curl --fail http://localhost:8080/v1/health || exit 1
-
+          curl --fail http://localhost:8080/${{ needs.build-and-push.outputs.version }}/health || exit 1
