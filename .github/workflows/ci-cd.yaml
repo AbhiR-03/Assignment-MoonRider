@@ -66,6 +66,11 @@ jobs:
           # REMOVE or move the following line if k8s directory should exist from repo:
           # mkdir -p k8s
           sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment-template.yaml > k8s/deployment.yaml
+          
+      - name: Show generated deployment.yaml
+        run: |
+          echo "🧾 Contents of rendered deployment.yaml:"
+          cat k8s/deployment.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/ingress.yaml  
