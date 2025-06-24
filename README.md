@@ -1,15 +1,19 @@
 # Identity Reconciliation API – Zamazon
 
-This project solves the **identity reconciliation problem** where the same user may use different email and phone combinations. The `/identify` API accepts these inputs and returns all linked identities under a single user.
+This project solves the **identity reconciliation problem** where the same user may use different email and phone combinations. Given(Showcased below) API accepts these inputs and returns all linked identities under a single user.
 
 ---
+# TASK - 1 & 2
 
 ## Features
 
-- Identify unique users across different contact inputs
-- Merge records under a single "primary" user
-- Dynamically create secondary contact entries
-- Automatically updates relationships when overlaps are found
+-Creates a new **primary** contact if no matching email/phone found.
+- Creates a **secondary** contact if partial match found (new data).
+- Maintains relational integrity across linked identities.
+- Automatically reassigns primary/secondary roles on overlap.
+- Seamless **CI/CD** with GitHub Actions and Render.
+- Containerized using **Docker**, with multiple feature versions.
+- Built with **Spring Boot + Maven**.
 
 ---
 
@@ -21,7 +25,8 @@ This project solves the **identity reconciliation problem** where the same user 
 - H2 Database (in-memory)
 - Maven
 - Postman/curl for testing
-
+- GitHub Actions
+- Render
 ---
 
 ##  API Endpoint
@@ -56,3 +61,18 @@ Headers: Content-Type: application/json
 
 ## Error Handling 
 - For an empty field of request in 'email' or 'password' results in 400 BadRequest.
+
+## Docker (Containerization)
+# Build Docker Image
+- docker build -t rabhi03/java-assignment:v1 .
+- docker run -p 8080:8080 rabhi03/java-assignment:v1
+
+## Testing with KIND (Kubernetes IN Docker)
+- created 3 different namespaces for each different version of the application.
+- Deployed application to the respective namespace.
+- Performed autoscaling(HPA) with stres-test
+- Used Ingress for routing the application
+
+## Used Render & GitHub Actions for CI-CD
+- `https://assignment-moonrider.onrender.com/products`
+- Render auto-deploys the app on every push to each deply.
