@@ -30,7 +30,7 @@ jobs:
           fi
           echo "VERSION=$VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
+    
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$VERSION .
 
