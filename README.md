@@ -29,6 +29,13 @@ This project solves the **identity reconciliation problem** where the same user 
 - Render
 ---
 
+
+## Build Locally
+-Make sure you have JDK 21 installed
+-Install Maven compatibe with JDK-21
+- Run the command `./mvnw clean package` where your pom.xml lies in your folder
+- Run the application `./mvnw spring-boot:run`
+- 
 ##  API Endpoint
 
 ### `POST /identify`
@@ -40,6 +47,9 @@ This project solves the **identity reconciliation problem** where the same user 
   "phoneNumber": "9876543210"
 }
 ```
+### `GET /products`
+
+### `GET /health`
 
 ## RUN LOCALLY
 git clone https://github.com/AbhiR-03/<Repo-name>
