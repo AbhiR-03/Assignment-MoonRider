@@ -30,7 +30,6 @@ jobs:
           else
             VERSION="${GITHUB_REF#refs/heads/}"
           fi
-          echo "VERSION=$VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
@@ -45,6 +44,8 @@ jobs:
     env:
       VERSION: ${{ needs.build-and-push.outputs.version }}
     steps:
+      - name: Print passed VERSION
+        run: echo "VERSION is: $VERSION "
       - name: Checkout repo
         uses: actions/checkout@v3
 
