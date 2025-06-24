@@ -54,15 +54,16 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-           echo "Printing directory tree:"
-           ls -la
-           echo "Checking contents of k8s directory:"
-           ls -la k8s || echo "⚠️ k8s directory not found"
-           mkdir -p k8s
-           sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment-template.yaml > k8s/deployment.yaml
-           kubectl apply -f k8s/deployment.yaml
-           kubectl apply -f k8s/service.yaml
-           kubectl apply -f k8s/ingress.yaml
+          echo "Printing directory tree:"
+          ls -la
+          echo "Checking contents of k8s directory:"
+          ls -la k8s || echo "⚠️ k8s directory not found"
+          # REMOVE or move the following line if k8s directory should exist from repo:
+          # mkdir -p k8s
+          sed "s|IMAGE_TAG|${{ env.VERSION }}|g" k8s/deployment-template.yaml > k8s/deployment.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/ingress.yaml  
 
   integration-tests:
     needs: deploy-to-k8s
