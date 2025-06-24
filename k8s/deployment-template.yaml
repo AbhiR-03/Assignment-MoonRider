@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: java-assignment-container
-          image: rabhi03/assignment-java:v3
+          image: rabhi03/assignment-java:IMAGE_TAG
           ports:
             - containerPort: 8080
           resources:
